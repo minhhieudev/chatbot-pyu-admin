@@ -1,0 +1,49 @@
+name: Deploy NextJS to EC2
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          set -e
+
+          PROJECT_DIR="/home/ec2-user/sse_cms"
+          REPO="git@github.com:${{ github.repository }}.git"
+
+          if [ ! -d "$PROJECT_DIR/.git" ]; then
+            echo "Cloning repository..."
+            rm -rf $PROJECT_DIR
+            git clone $REPO $PROJECT_DIR
+          fi
+
+          cd $PROJECT_DIR
+          git fetch origin
+          git reset --hard origin/main
+
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+          nvm use 18 || nvm install 18
+
+          export NEXT_DISABLE_ESLINT=true
+          export NEXT_TELEMETRY_DISABLED=1
+
+          npm ci
+          npm run build
+
+          pm2 startOrRestart ecosystem.config.js --env production
+          pm2 save
