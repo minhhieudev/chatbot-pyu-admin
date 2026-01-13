@@ -125,15 +125,141 @@ const DEFAULT_GENERAL = [
   }
 ];
 
+const DEFAULT_CUTOFF = [
+  {
+    label: "Diem chuan dot 1",
+    type: "round_1",
+    tags: ["round_1", "main", "thpt", "dgnl", "ccqt"],
+    content: "",
+    attachments: [],
+    icon: FileCheck
+  },
+  {
+    label: "Diem chuan dot 2",
+    type: "round_2",
+    tags: ["round_2", "secondary", "thpt"],
+    content: "",
+    attachments: [],
+    icon: FileCheck
+  },
+  {
+    label: "Diem chuan bo sung",
+    type: "supplementary",
+    tags: ["supplementary", "additional", "thpt"],
+    content: "",
+    attachments: [],
+    icon: FileCheck
+  },
+  {
+    label: "Thong tin khac",
+    type: "others",
+    tags: ["others", "notes", "explanation"],
+    content: "",
+    attachments: [],
+    icon: Info
+  }
+];
+
+const DEFAULT_ADMITTED = [
+  {
+    label: "Thong ke trung tuyen",
+    type: "statistics",
+    tags: ["statistics", "numbers", "overview"],
+    content: "",
+    attachments: [],
+    icon: Users
+  },
+  {
+    label: "Danh sach trung tuyen theo nganh",
+    type: "by_major",
+    tags: ["major", "breakdown", "quota"],
+    content: "",
+    attachments: [],
+    icon: FileText
+  },
+  {
+    label: "Ket qua xet tuyen",
+    type: "results",
+    tags: ["results", "admission", "outcome"],
+    content: "",
+    attachments: [],
+    icon: Check
+  },
+  {
+    label: "Thong tin nhap hoc",
+    type: "enrollment",
+    tags: ["enrollment", "registration", "next_steps"],
+    content: "",
+    attachments: [],
+    icon: CalendarDay
+  },
+  {
+    label: "Thong tin khac",
+    type: "others",
+    tags: ["others", "notes", "announcements"],
+    content: "",
+    attachments: [],
+    icon: MoreHorizontal
+  }
+];
+
+const DEFAULT_ADDITIONAL = [
+  {
+    label: "Thong bao quan trong",
+    type: "announcements",
+    tags: ["announcements", "important", "news"],
+    content: "",
+    attachments: [],
+    icon: Info
+  },
+  {
+    label: "Thay doi chinh sach",
+    type: "policy_changes",
+    tags: ["policy", "changes", "updates"],
+    content: "",
+    attachments: [],
+    icon: ShieldCheck
+  },
+  {
+    label: "Ho tro ky thuat",
+    type: "technical_support",
+    tags: ["support", "technical", "help"],
+    content: "",
+    attachments: [],
+    icon: HelpCircle
+  },
+  {
+    label: "Thong tin bo sung",
+    type: "supplementary",
+    tags: ["supplementary", "extra", "additional"],
+    content: "",
+    attachments: [],
+    icon: FileText
+  },
+  {
+    label: "Thong tin khac",
+    type: "others",
+    tags: ["others", "miscellaneous", "various"],
+    content: "",
+    attachments: [],
+    icon: MoreHorizontal
+  }
+];
+
+const buildSectionGroup = (sections) => ({
+  sections,
+  attachments: [],
+});
+
 const buildAdmission = () => ({
   year: 2025,
   degree: "ĐH",
   system: "Chính quy",
   status: "draft",
-  general: [...DEFAULT_GENERAL],
-  cutoff: [],
-  admitted: [],
-  additional: [],
+  general: buildSectionGroup([...DEFAULT_GENERAL]),
+  cutoff: buildSectionGroup([...DEFAULT_CUTOFF]),
+  admitted: buildSectionGroup([...DEFAULT_ADMITTED]),
+  additional: buildSectionGroup([...DEFAULT_ADDITIONAL]),
   attachments: [],
 });
 
@@ -143,12 +269,38 @@ const mapTags = (value) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-const FIXED_GENERAL_TYPES = new Set([
-  "eligibility", "methods", "majors", "combos", "rules", "timeline", "aptitude", "fees", "contacts", "others"
+const getSectionsFromGroup = (group) => {
+  if (Array.isArray(group)) return group;
+  if (group?.sections && Array.isArray(group.sections)) return group.sections;
+  return [];
+};
+
+const mergeSections = (defaults, group) => {
+  const existingSections = getSectionsFromGroup(group);
+  const merged = defaults.map((defaultItem) => {
+    const existing = existingSections.find((item) => item.type === defaultItem.type);
+    return existing ? { ...defaultItem, ...existing } : defaultItem;
+  });
+  const extra = existingSections.filter(
+    (item) => !defaults.some((defaultItem) => defaultItem.type === item.type)
+  );
+  return [...merged, ...extra];
+};
+
+const normalizeGroup = (group, defaults) => ({
+  sections: mergeSections(defaults, group),
+  attachments: Array.isArray(group?.attachments) ? group.attachments : [],
+});
+
+const FIXED_SECTION_TYPES = new Set([
+  ...DEFAULT_GENERAL.map((item) => item.type),
+  ...DEFAULT_CUTOFF.map((item) => item.type),
+  ...DEFAULT_ADMITTED.map((item) => item.type),
+  ...DEFAULT_ADDITIONAL.map((item) => item.type)
 ]);
 
 const ContentEditor = ({ item, onChange }) => {
-  const isFixed = FIXED_GENERAL_TYPES.has(item.type);
+  const isFixed = FIXED_SECTION_TYPES.has(item.type);
   const tagsValue = useMemo(() => (item.tags ?? []).join(", "), [item.tags]);
   const Icon = item.icon || FileText;
 
@@ -294,16 +446,13 @@ export const AdmissionForm = ({
 
   useEffect(() => {
     if (initialData) {
-      // Ensure general list has all items even if initialData is missing some
-      const mergedGeneral = DEFAULT_GENERAL.map(defaultItem => {
-        const existing = initialData.general?.find(i => i.type === defaultItem.type);
-        return existing ? { ...defaultItem, ...existing } : defaultItem;
-      });
-
       setForm({
         ...buildAdmission(),
         ...initialData,
-        general: mergedGeneral,
+        general: normalizeGroup(initialData.general, DEFAULT_GENERAL),
+        cutoff: normalizeGroup(initialData.cutoff, DEFAULT_CUTOFF),
+        admitted: normalizeGroup(initialData.admitted, DEFAULT_ADMITTED),
+        additional: normalizeGroup(initialData.additional, DEFAULT_ADDITIONAL),
       });
     }
   }, [initialData]);
@@ -315,28 +464,41 @@ export const AdmissionForm = ({
     return () => window.removeEventListener("hashchange", update);
   }, []);
 
-  const updateGeneralItem = (index, nextItem) => {
-    const nextGeneral = [...form.general];
-    nextGeneral[index] = nextItem;
-    setForm(prev => ({ ...prev, general: nextGeneral }));
+  const updateSectionItem = (groupKey, index, nextItem) => {
+    setForm(prev => {
+      const group = prev[groupKey] ?? buildSectionGroup([]);
+      const nextSections = [...(group.sections ?? [])];
+      nextSections[index] = nextItem;
+      return { ...prev, [groupKey]: { ...group, sections: nextSections } };
+    });
   };
 
-  const addListItem = (field) => {
-    setForm(prev => ({
-      ...prev,
-      [field]: [...prev[field], { label: "", content: "", tags: [], attachments: [] }]
-    }));
+  const addListItem = (groupKey) => {
+    setForm(prev => {
+      const group = prev[groupKey] ?? buildSectionGroup([]);
+      const nextSections = [
+        ...(group.sections ?? []),
+        { label: "", content: "", tags: [], attachments: [] }
+      ];
+      return { ...prev, [groupKey]: { ...group, sections: nextSections } };
+    });
   };
 
-  const updateListItem = (field, index, nextValue) => {
-    const next = [...form[field]];
-    next[index] = nextValue;
-    setForm(prev => ({ ...prev, [field]: next }));
+  const updateListItem = (groupKey, index, nextValue) => {
+    setForm(prev => {
+      const group = prev[groupKey] ?? buildSectionGroup([]);
+      const nextSections = [...(group.sections ?? [])];
+      nextSections[index] = nextValue;
+      return { ...prev, [groupKey]: { ...group, sections: nextSections } };
+    });
   };
 
-  const removeListItem = (field, index) => {
-    const next = form[field].filter((_, idx) => idx !== index);
-    setForm(prev => ({ ...prev, [field]: next }));
+  const removeListItem = (groupKey, index) => {
+    setForm(prev => {
+      const group = prev[groupKey] ?? buildSectionGroup([]);
+      const nextSections = (group.sections ?? []).filter((_, idx) => idx !== index);
+      return { ...prev, [groupKey]: { ...group, sections: nextSections } };
+    });
   };
 
   return (
@@ -448,11 +610,11 @@ export const AdmissionForm = ({
       <div className="space-y-6">
         {activeSection === "general" && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {form.general.map((item, index) => (
+            {form.general.sections.map((item, index) => (
               <ContentEditor
                 key={item.type}
                 item={item}
-                onChange={(next) => updateGeneralItem(index, next)}
+                onChange={(next) => updateSectionItem("general", index, next)}
               />
             ))}
           </div>
@@ -479,8 +641,8 @@ export const AdmissionForm = ({
             </div>
 
             <div className="space-y-4">
-              {form[activeSection]?.length > 0 ? (
-                form[activeSection].map((item, index) => (
+              {form[activeSection]?.sections?.length > 0 ? (
+                form[activeSection].sections.map((item, index) => (
                   <div key={`${activeSection}-${index}`} className="group relative">
                     <ContentEditor
                       item={{ ...item, label: item.label || `Mục #${index + 1}` }}

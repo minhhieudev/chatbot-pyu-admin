@@ -24,6 +24,11 @@ const StatusBadge = ({ status }) => {
 export default function AdmissionsList({ defaultTab = "general" }) {
     const [records, setRecords] = useState([]);
     const [isBusy, setIsBusy] = useState(false);
+    const getGroupCount = (group) => {
+        if (Array.isArray(group)) return group.length;
+        if (group?.sections && Array.isArray(group.sections)) return group.sections.length;
+        return 0;
+    };
 
     const fetchRecords = async () => {
         setIsBusy(true);
@@ -120,19 +125,19 @@ export default function AdmissionsList({ defaultTab = "general" }) {
                                 <div className={`rounded-2xl p-4 border border-transparent transition-all ${defaultTab === 'general' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50'}`}>
                                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">General</p>
                                     <p className="text-lg font-black text-slate-700">
-                                        {record.general?.length || 0} <span className="text-xs font-medium text-slate-400">mục</span>
+                                        {getGroupCount(record.general)} <span className="text-xs font-medium text-slate-400">mục</span>
                                     </p>
                                 </div>
                                 <div className={`rounded-2xl p-4 border border-transparent transition-all ${['cutoff', 'admitted'].includes(defaultTab) ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50'}`}>
                                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Kết quả</p>
                                     <p className="text-lg font-black text-slate-700">
-                                        {(record.cutoff?.length || 0) + (record.admitted?.length || 0)} <span className="text-xs font-medium text-slate-400">mục</span>
+                                        {getGroupCount(record.cutoff) + getGroupCount(record.admitted)} <span className="text-xs font-medium text-slate-400">mục</span>
                                     </p>
                                 </div>
                                 <div className={`rounded-2xl p-4 border border-transparent transition-all ${defaultTab === 'additional' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50'}`}>
                                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Tài liệu</p>
                                     <p className="text-lg font-black text-slate-700">
-                                        {record.attachments?.length || 0} <span className="text-xs font-medium text-slate-400">files</span>
+                                        {getGroupCount(record.additional)} <span className="text-xs font-medium text-slate-400">files</span>
                                     </p>
                                 </div>
                             </div>
