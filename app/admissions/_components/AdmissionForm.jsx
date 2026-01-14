@@ -48,7 +48,6 @@ const DEFAULT_GENERAL = [
     type: "eligibility",
     tags: ["eligibility", "requirements", "audience"],
     content: "",
-    attachments: [],
     icon: Users
   },
   {
@@ -56,7 +55,6 @@ const DEFAULT_GENERAL = [
     type: "methods",
     tags: ["admission_methods", "methods"],
     content: "",
-    attachments: [],
     icon: LayoutGrid
   },
   {
@@ -64,7 +62,6 @@ const DEFAULT_GENERAL = [
     type: "majors",
     tags: ["major", "quota", "method", "combos"],
     content: "",
-    attachments: [],
     icon: FileText
   },
   {
@@ -72,7 +69,6 @@ const DEFAULT_GENERAL = [
     type: "combos",
     tags: ["combos", "subject", "mapping"],
     content: "",
-    attachments: [],
     icon: FileCheck
   },
   {
@@ -80,7 +76,6 @@ const DEFAULT_GENERAL = [
     type: "rules",
     tags: ["rules", "priority", "conversion", "threshold", "certificate"],
     content: "",
-    attachments: [],
     icon: ShieldCheck
   },
   {
@@ -88,7 +83,6 @@ const DEFAULT_GENERAL = [
     type: "timeline",
     tags: ["timeline", "round", "schedule"],
     content: "",
-    attachments: [],
     icon: CalendarDay
   },
   {
@@ -96,7 +90,6 @@ const DEFAULT_GENERAL = [
     type: "aptitude",
     tags: ["aptitude", "exam", "special"],
     content: "",
-    attachments: [],
     icon: Sparkles
   },
   {
@@ -104,7 +97,6 @@ const DEFAULT_GENERAL = [
     type: "fees",
     tags: ["fee", "cost"],
     content: "",
-    attachments: [],
     icon: Wallet
   },
   {
@@ -112,7 +104,6 @@ const DEFAULT_GENERAL = [
     type: "contacts",
     tags: ["contact", "helpdesk", "support", "hotline"],
     content: "",
-    attachments: [],
     icon: Phone
   },
   {
@@ -120,128 +111,113 @@ const DEFAULT_GENERAL = [
     type: "others",
     tags: ["others", "news", "announcement"],
     content: "",
-    attachments: [],
     icon: MoreHorizontal
   }
 ];
 
 const DEFAULT_CUTOFF = [
   {
-    label: "Diem chuan dot 1",
+    label: "Điểm chuẩn đợt 1",
     type: "round_1",
     tags: ["round_1", "main", "thpt", "dgnl", "ccqt"],
     content: "",
-    attachments: [],
     icon: FileCheck
   },
   {
-    label: "Diem chuan dot 2",
+    label: "Điểm chuẩn đợt 2",
     type: "round_2",
     tags: ["round_2", "secondary", "thpt"],
     content: "",
-    attachments: [],
     icon: FileCheck
   },
   {
-    label: "Diem chuan bo sung",
+    label: "Điểm chuẩn bổ sung",
     type: "supplementary",
     tags: ["supplementary", "additional", "thpt"],
     content: "",
-    attachments: [],
     icon: FileCheck
   },
   {
-    label: "Thong tin khac",
+    label: "Thông tin khác",
     type: "others",
     tags: ["others", "notes", "explanation"],
     content: "",
-    attachments: [],
     icon: Info
   }
 ];
 
 const DEFAULT_ADMITTED = [
   {
-    label: "Thong ke trung tuyen",
+    label: "Thống kê trúng tuyển",
     type: "statistics",
     tags: ["statistics", "numbers", "overview"],
     content: "",
-    attachments: [],
     icon: Users
   },
   {
-    label: "Danh sach trung tuyen theo nganh",
+    label: "Danh sách trúng tuyển theo ngành",
     type: "by_major",
     tags: ["major", "breakdown", "quota"],
     content: "",
-    attachments: [],
     icon: FileText
   },
   {
-    label: "Ket qua xet tuyen",
+    label: "Kết quả xét tuyển",
     type: "results",
     tags: ["results", "admission", "outcome"],
     content: "",
-    attachments: [],
     icon: Check
   },
   {
-    label: "Thong tin nhap hoc",
+    label: "Thông tin nhập học",
     type: "enrollment",
     tags: ["enrollment", "registration", "next_steps"],
     content: "",
-    attachments: [],
     icon: CalendarDay
   },
   {
-    label: "Thong tin khac",
+    label: "Thông tin khác",
     type: "others",
     tags: ["others", "notes", "announcements"],
     content: "",
-    attachments: [],
     icon: MoreHorizontal
   }
 ];
 
 const DEFAULT_ADDITIONAL = [
   {
-    label: "Thong bao quan trong",
+    label: "Thông báo quan trọng",
     type: "announcements",
     tags: ["announcements", "important", "news"],
     content: "",
-    attachments: [],
     icon: Info
   },
   {
-    label: "Thay doi chinh sach",
+    label: "Thay đổi chính sách",
     type: "policy_changes",
     tags: ["policy", "changes", "updates"],
     content: "",
-    attachments: [],
     icon: ShieldCheck
   },
   {
-    label: "Ho tro ky thuat",
+    label: "Hỗ trợ kỹ thuật",
     type: "technical_support",
     tags: ["support", "technical", "help"],
     content: "",
-    attachments: [],
     icon: HelpCircle
   },
   {
-    label: "Thong tin bo sung",
+    label: "Thông tin bổ sung",
     type: "supplementary",
     tags: ["supplementary", "extra", "additional"],
     content: "",
-    attachments: [],
     icon: FileText
   },
   {
-    label: "Thong tin khac",
+    label: "Thông tin khác",
     type: "others",
     tags: ["others", "miscellaneous", "various"],
     content: "",
-    attachments: [],
     icon: MoreHorizontal
   }
 ];
@@ -299,35 +275,38 @@ const FIXED_SECTION_TYPES = new Set([
   ...DEFAULT_ADDITIONAL.map((item) => item.type)
 ]);
 
+const uploadFile = async (fileBlob) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', fileBlob);
+    formData.append('upload_preset', 'e0rggou2');
+    const safeName = fileBlob.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    formData.append('public_id', `chat-pyu/${safeName.split('.')[0]}`);
+    const response = await fetch("https://api.cloudinary.com/v1_1/dpxcvonet/raw/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+    return data;
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw error;
+  }
+};
+
 const ContentEditor = ({ item, onChange }) => {
   const isFixed = FIXED_SECTION_TYPES.has(item.type);
   const tagsValue = useMemo(() => (item.tags ?? []).join(", "), [item.tags]);
   const Icon = item.icon || FileText;
 
-  // ... rest of the helper functions ...
-  const updateAttachment = (index, field, fieldValue) => {
-    const next = [...item.attachments];
-    next[index] = { ...next[index], [field]: fieldValue };
-    onChange({ ...item, attachments: next });
-  };
-
-  const addAttachment = () => {
-    onChange({
-      ...item,
-      attachments: [...(item.attachments ?? []), { type: "", name: "", url: "" }],
-    });
-  };
-
-  const removeAttachment = (index) => {
-    const next = item.attachments.filter((_, idx) => idx !== index);
-    onChange({ ...item, attachments: next });
-  };
-
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-blue-200">
       <div className="flex items-center justify-between border-b border-slate-50 pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
             <Icon className="h-4 w-4" />
           </div>
           <div>
@@ -335,7 +314,7 @@ const ContentEditor = ({ item, onChange }) => {
             <p className="text-[10px] uppercase tracking-wider text-slate-400">{item.type}</p>
           </div>
         </div>
-        <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-600">
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-600">
           Chỉnh sửa
         </span>
       </div>
@@ -366,69 +345,97 @@ const ContentEditor = ({ item, onChange }) => {
             input: "text-sm",
           }}
         />
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Tài liệu đính kèm ({item.attachments?.length || 0})
-            </p>
-            <Button
-              size="xs"
-              variant="flat"
-              onPress={addAttachment}
-              className="h-7 px-3 text-[10px] font-bold uppercase"
-              startContent={<Plus className="h-3 w-3" />}
+      </div>
+    </div>
+  );
+};
+
+const FileUpload = ({ attachments, onChange }) => {
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      toast.loading("Đang tải lên file...");
+      const result = await uploadFile(file);
+      const newAttachment = {
+        name: file.name,
+        url: result.secure_url,
+        type: file.type,
+      };
+      onChange([...attachments, newAttachment]);
+      toast.dismiss();
+      toast.success("Tải lên thành công!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Lỗi tải lên: " + error.message);
+    }
+  };
+
+  const removeAttachment = (index) => {
+    const next = attachments.filter((_, idx) => idx !== index);
+    onChange(next);
+  };
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm font-bold text-slate-800">Tài liệu đính kèm ({attachments.length})</p>
+        <label>
+          <input
+            type="file"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            size="sm"
+            variant="flat"
+            as="span"
+            startContent={<Plus className="h-4 w-4" />}
+          >
+            Thêm file
+          </Button>
+        </label>
+      </div>
+      <div className="space-y-2">
+        {attachments.length > 0 ? (
+          attachments.map((attachment, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3"
             >
-              Thêm file
-            </Button>
-          </div>
-          <div className="mt-3 space-y-2">
-            {item.attachments?.length > 0 ? (
-              item.attachments.map((attachment, index) => (
-                <div
-                  key={`${item.type}-attachment-${index}`}
-                  className="group relative rounded-xl border border-slate-200 bg-white p-3 pt-4 transition-all hover:border-emerald-200"
-                >
-                  <Button
-                    size="sm"
-                    variant="light"
-                    color="danger"
-                    isIconOnly
-                    className="absolute right-1 top-1 h-6 w-6"
-                    onPress={() => removeAttachment(index)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input
-                      label="Loại"
-                      size="sm"
-                      variant="flat"
-                      value={attachment.type}
-                      onValueChange={(next) => updateAttachment(index, "type", next)}
-                    />
-                    <Input
-                      label="Tên file"
-                      size="sm"
-                      variant="flat"
-                      value={attachment.name}
-                      onValueChange={(next) => updateAttachment(index, "name", next)}
-                    />
-                  </div>
-                  <Input
-                    label="URL tài liệu"
-                    size="sm"
-                    variant="flat"
-                    className="mt-2"
-                    value={attachment.url}
-                    onValueChange={(next) => updateAttachment(index, "url", next)}
-                  />
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-slate-400" />
+                <div>
+                  <p className="text-sm font-medium text-slate-800">{attachment.name}</p>
+                  <p className="text-xs text-slate-500">{attachment.type}</p>
                 </div>
-              ))
-            ) : (
-              <p className="py-2 text-center text-[11px] text-slate-400 italic">Chưa có file đính kèm.</p>
-            )}
-          </div>
-        </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="light"
+                  as="a"
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Xem
+                </Button>
+                <Button
+                  size="sm"
+                  variant="light"
+                  color="danger"
+                  onPress={() => removeAttachment(index)}
+                >
+                  Xóa
+                </Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-slate-400 py-4">Chưa có file nào.</p>
+        )}
       </div>
     </div>
   );
@@ -478,7 +485,7 @@ export const AdmissionForm = ({
       const group = prev[groupKey] ?? buildSectionGroup([]);
       const nextSections = [
         ...(group.sections ?? []),
-        { label: "", content: "", tags: [], attachments: [] }
+        { label: "", content: "", tags: [] }
       ];
       return { ...prev, [groupKey]: { ...group, sections: nextSections } };
     });
@@ -501,17 +508,24 @@ export const AdmissionForm = ({
     });
   };
 
+  const updateGroupAttachments = (groupKey, attachments) => {
+    setForm(prev => ({
+      ...prev,
+      [groupKey]: { ...prev[groupKey], attachments }
+    }));
+  };
+
   return (
     <div className="flex h-full flex-col gap-6 max-w-7xl mx-auto">
       {/* Header card */}
       <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-emerald-500 text-white shadow-lg shadow-emerald-200">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-blue-500 text-white shadow-lg shadow-blue-200">
               <Plus className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-emerald-500">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-blue-500">
                 Hệ thống quản lý
               </p>
               <h1 className="text-3xl font-black text-slate-900 tracking-tight">{title}</h1>
@@ -531,7 +545,7 @@ export const AdmissionForm = ({
             )}
             <Button
               color="primary"
-              className="rounded-2xl font-bold px-8 shadow-lg shadow-emerald-200 bg-emerald-600 hover:bg-emerald-700 h-12"
+              className="rounded-2xl font-bold px-8 shadow-lg shadow-blue-200 bg-blue-600 hover:bg-blue-700 h-12"
               startContent={<Save className="h-5 w-5" />}
               isLoading={isSaving}
               onPress={async () => {
@@ -594,8 +608,8 @@ export const AdmissionForm = ({
                 href={`#${section.key}`}
                 onClick={() => setActiveSection(section.key)}
                 className={`flex items-center gap-2 rounded-2xl px-5 py-3 text-xs font-bold transition-all ${activeSection === section.key
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100"
-                  : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-100"
+                  : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                   }`}
               >
                 <Icon className="h-4 w-4" />
@@ -609,15 +623,21 @@ export const AdmissionForm = ({
       {/* Content area */}
       <div className="space-y-6">
         {activeSection === "general" && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {form.general.sections.map((item, index) => (
-              <ContentEditor
-                key={item.type}
-                item={item}
-                onChange={(next) => updateSectionItem("general", index, next)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {form.general.sections.map((item, index) => (
+                <ContentEditor
+                  key={item.type}
+                  item={item}
+                  onChange={(next) => updateSectionItem("general", index, next)}
+                />
+              ))}
+            </div>
+            <FileUpload
+              attachments={form.general.attachments}
+              onChange={(attachments) => updateGroupAttachments("general", attachments)}
+            />
+          </>
         )}
 
         {/* Other sections - Placeholder for now as requested "trước mắt cần làm chi tiết các mục cho general" */}
@@ -677,6 +697,10 @@ export const AdmissionForm = ({
                 </div>
               )}
             </div>
+            <FileUpload
+              attachments={form[activeSection].attachments}
+              onChange={(attachments) => updateGroupAttachments(activeSection, attachments)}
+            />
           </div>
         )}
 

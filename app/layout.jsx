@@ -2,16 +2,10 @@
 
 import "@/styles/globals.css";
 import clsx from "clsx";
-import { Space_Grotesk } from "next/font/google";
 
-import { Providers } from "./providers";
-import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin", "vietnamese"],
-  display: "swap",
-});
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { Providers } from "./providers";
 
 export default function RootLayout({ children }) {
   return (
@@ -19,12 +13,7 @@ export default function RootLayout({ children }) {
       <head>
         <title>PYU Admissions Admin</title>
       </head>
-      <body
-        className={clsx(
-          spaceGrotesk.className,
-          "min-h-screen bg-slate-100 text-slate-900 antialiased",
-        )}
-      >
+      <body className={clsx("min-h-screen bg-slate-100 text-slate-900 ")}>
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="flex gap-0 h-screen bg-slate-50">
             <AdminSidebar />
